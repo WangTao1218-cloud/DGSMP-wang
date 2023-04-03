@@ -67,7 +67,7 @@ if __name__ == "__main__":
     HR_HSI = prepare_data(opt.data_path, file_list, len(file_list))
 
     ## Load trained model
-    # 下面4行是我注释的 wt
+    # wt zhushi
     initial_epoch = 0
     # initial_epoch = findLastCheckpoint(save_dir="./Checkpoint")
     # if initial_epoch > 0:

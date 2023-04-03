@@ -22,6 +22,7 @@ class Resblock(nn.Module):
         out = r2 + out
         return out
 
+
 class Encoding(nn.Module):
     def __init__(self):
         super(Encoding, self).__init__()
@@ -60,30 +61,31 @@ class Encoding(nn.Module):
         E5 = self.E5(F.avg_pool2d(E4, kernel_size=2, stride=2))
         return E1, E2, E3, E4, E5
 
+
 class Decoding(nn.Module):
-    def __init__(self, Ch=28, kernel_size=[7,7,7]):
+    def __init__(self, Ch=28, kernel_size=[7, 7, 7]):
         super(Decoding, self).__init__()
         self.upMode = 'bilinear'
         self.Ch = Ch
         out_channel1 = Ch * kernel_size[0]
         out_channel2 = Ch * kernel_size[1]
         out_channel3 = Ch * kernel_size[2]
-        self.D1 = nn.Sequential(nn.Conv2d(in_channels=128+128, out_channels=128, kernel_size=3, stride=1, padding=1),
+        self.D1 = nn.Sequential(nn.Conv2d(in_channels=128 + 128, out_channels=128, kernel_size=3, stride=1, padding=1),
                                 nn.ReLU(),
                                 nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1),
                                 nn.ReLU()
                                 )
-        self.D2 = nn.Sequential(nn.Conv2d(in_channels=128+64, out_channels=64, kernel_size=3, stride=1, padding=1),
+        self.D2 = nn.Sequential(nn.Conv2d(in_channels=128 + 64, out_channels=64, kernel_size=3, stride=1, padding=1),
                                 nn.ReLU(),
                                 nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),
                                 nn.ReLU()
                                 )
-        self.D3 = nn.Sequential(nn.Conv2d(in_channels=64+64, out_channels=64, kernel_size=3, stride=1, padding=1),
+        self.D3 = nn.Sequential(nn.Conv2d(in_channels=64 + 64, out_channels=64, kernel_size=3, stride=1, padding=1),
                                 nn.ReLU(),
                                 nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),
                                 nn.ReLU()
                                 )
-        self.D4 = nn.Sequential(nn.Conv2d(in_channels=64+32, out_channels=32, kernel_size=3, stride=1, padding=1),
+        self.D4 = nn.Sequential(nn.Conv2d(in_channels=64 + 32, out_channels=32, kernel_size=3, stride=1, padding=1),
                                 nn.ReLU(),
                                 nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1, padding=1),
                                 nn.ReLU()
@@ -91,32 +93,33 @@ class Decoding(nn.Module):
 
         self.w_generator = nn.Sequential(nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, stride=1, padding=1),
                                          nn.ReLU(),
-                                         nn.Conv2d(in_channels=32, out_channels=self.Ch, kernel_size=3, stride=1, padding=1),
+                                         nn.Conv2d(in_channels=32, out_channels=self.Ch, kernel_size=3, stride=1,
+                                                   padding=1),
                                          nn.ReLU(),
-                                         nn.Conv2d(in_channels=self.Ch, out_channels=self.Ch, kernel_size=1, stride=1, padding=0)
+                                         nn.Conv2d(in_channels=self.Ch, out_channels=self.Ch, kernel_size=1, stride=1,
+                                                   padding=0)
                                          )
 
-        self.filter_g_1      = nn.Sequential(nn.Conv2d(64 + 32, out_channel1, kernel_size=3, stride=1, padding=1),
-                                             nn.ReLU(),
-                                             nn.Conv2d(out_channel1, out_channel1, kernel_size=3, stride=1, padding=1),
-                                             nn.ReLU(),
-                                             nn.Conv2d(out_channel1, out_channel1, 1, 1, 0)
-                                             )
+        self.filter_g_1 = nn.Sequential(nn.Conv2d(64 + 32, out_channel1, kernel_size=3, stride=1, padding=1),
+                                        nn.ReLU(),
+                                        nn.Conv2d(out_channel1, out_channel1, kernel_size=3, stride=1, padding=1),
+                                        nn.ReLU(),
+                                        nn.Conv2d(out_channel1, out_channel1, 1, 1, 0)
+                                        )
 
-        self.filter_g_2      = nn.Sequential(nn.Conv2d(64 + 32, out_channel2, kernel_size=3, stride=1, padding=1),
-                                             nn.ReLU(),
-                                             nn.Conv2d(out_channel2, out_channel2, kernel_size=3, stride=1, padding=1),
-                                             nn.ReLU(),
-                                             nn.Conv2d(out_channel2, out_channel2, 1, 1, 0)
-                                             )
+        self.filter_g_2 = nn.Sequential(nn.Conv2d(64 + 32, out_channel2, kernel_size=3, stride=1, padding=1),
+                                        nn.ReLU(),
+                                        nn.Conv2d(out_channel2, out_channel2, kernel_size=3, stride=1, padding=1),
+                                        nn.ReLU(),
+                                        nn.Conv2d(out_channel2, out_channel2, 1, 1, 0)
+                                        )
 
-        self.filter_g_3      = nn.Sequential(nn.Conv2d(64 + 32, out_channel3, kernel_size=3, stride=1, padding=1),
-                                             nn.ReLU(),
-                                             nn.Conv2d(out_channel3, out_channel3, kernel_size=3, stride=1, padding=1),
-                                             nn.ReLU(),
-                                             nn.Conv2d(out_channel3, out_channel3, 1, 1, 0)
-                                             )
-
+        self.filter_g_3 = nn.Sequential(nn.Conv2d(64 + 32, out_channel3, kernel_size=3, stride=1, padding=1),
+                                        nn.ReLU(),
+                                        nn.Conv2d(out_channel3, out_channel3, kernel_size=3, stride=1, padding=1),
+                                        nn.ReLU(),
+                                        nn.Conv2d(out_channel3, out_channel3, 1, 1, 0)
+                                        )
 
     def forward(self, E1, E2, E3, E4, E5):
         ## decoding blocks
@@ -139,32 +142,31 @@ class HSI_CS(nn.Module):
     def __init__(self, Ch, stages):
         super(HSI_CS, self).__init__()
         self.Ch = Ch
-        self.s  = stages
-        self.filter_size = [7,7,7]  ## 3D filter size
+        self.s = stages
+        self.filter_size = [7, 7, 7]  ## 3D filter size
 
         ## The modules for learning the measurement matrix A and A^T
         self.AT = nn.Sequential(nn.Conv2d(Ch, 64, kernel_size=3, stride=1, padding=1), nn.LeakyReLU(),
                                 Resblock(64), Resblock(64),
                                 nn.Conv2d(64, Ch, kernel_size=3, stride=1, padding=1), nn.LeakyReLU())
-        self.A  = nn.Sequential(nn.Conv2d(Ch, 64, kernel_size=3, stride=1, padding=1), nn.LeakyReLU(),
-                                Resblock(64), Resblock(64),
-                                nn.Conv2d(64, Ch, kernel_size=3, stride=1, padding=1), nn.LeakyReLU())
+        self.A = nn.Sequential(nn.Conv2d(Ch, 64, kernel_size=3, stride=1, padding=1), nn.LeakyReLU(),
+                               Resblock(64), Resblock(64),
+                               nn.Conv2d(64, Ch, kernel_size=3, stride=1, padding=1), nn.LeakyReLU())
 
         ## Encoding blocks
         self.Encoding = Encoding()
 
         ## Decoding blocks
-        self.Decoding   = Decoding(Ch=self.Ch, kernel_size=self.filter_size)
+        self.Decoding = Decoding(Ch=self.Ch, kernel_size=self.filter_size)
 
         ## Dense connection
-        self.conv  = nn.Conv2d(Ch, 32, kernel_size=3, stride=1, padding=1)
-        self.Den_con1 = nn.Conv2d(32    , 32, kernel_size=1, stride=1, padding=0)
+        self.conv = nn.Conv2d(Ch, 32, kernel_size=3, stride=1, padding=1)
+        self.Den_con1 = nn.Conv2d(32, 32, kernel_size=1, stride=1, padding=0)
         self.Den_con2 = nn.Conv2d(32 * 2, 32, kernel_size=1, stride=1, padding=0)
         self.Den_con3 = nn.Conv2d(32 * 3, 32, kernel_size=1, stride=1, padding=0)
         self.Den_con4 = nn.Conv2d(32 * 4, 32, kernel_size=1, stride=1, padding=0)
         # self.Den_con5 = nn.Conv2d(32 * 5, 32, kernel_size=1, stride=1, padding=0)
         # self.Den_con6 = nn.Conv2d(32 * 6, 32, kernel_size=1, stride=1, padding=0)
-
 
         self.delta_0 = Parameter(torch.ones(1), requires_grad=True)
         self.delta_1 = Parameter(torch.ones(1), requires_grad=True)
@@ -181,7 +183,6 @@ class HSI_CS(nn.Module):
         # torch.nn.init.normal_(self.delta_4, mean=0.1, std=0.01)
         # torch.nn.init.normal_(self.delta_5, mean=0.1, std=0.01)
 
-
     def _initialize_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -190,7 +191,6 @@ class HSI_CS(nn.Module):
             elif isinstance(m, nn.Linear):
                 nn.init.xavier_normal_(m.weight.data)
                 nn.init.constant_(m.bias.data, 0.0)
-
 
     def Filtering_1(self, cube, core):
         batch_size, bandwidth, height, width = cube.size()
@@ -214,7 +214,8 @@ class HSI_CS(nn.Module):
 
     def Filtering_3(self, cube, core):
         batch_size, bandwidth, height, width = cube.size()
-        cube_pad = F.pad(cube.unsqueeze(0).unsqueeze(0), pad=(0, 0, 0, 0, self.filter_size[2] // 2, self.filter_size[2] // 2)).squeeze(0).squeeze(0)
+        cube_pad = F.pad(cube.unsqueeze(0).unsqueeze(0),
+                         pad=(0, 0, 0, 0, self.filter_size[2] // 2, self.filter_size[2] // 2)).squeeze(0).squeeze(0)
         img_stack = []
         for i in range(self.filter_size[2]):
             img_stack.append(cube_pad[:, i:i + bandwidth, :, :])
@@ -223,7 +224,7 @@ class HSI_CS(nn.Module):
         return out
 
     def recon(self, res1, res2, Xt, i):
-        if i == 0 :
+        if i == 0:
             delta = self.delta_0
         elif i == 1:
             delta = self.delta_1
@@ -236,7 +237,7 @@ class HSI_CS(nn.Module):
         # elif i == 5:
         #     delta = self.delta_5
 
-        Xt     =   Xt - 2 * delta * (res1 + res2)
+        Xt = Xt - 2 * delta * (res1 + res2)
         return Xt
 
     def y2x(self, y):
@@ -250,7 +251,7 @@ class HSI_CS(nn.Module):
         sz = y.size()
         x = torch.zeros([bs, 28, sz[2], sz[2]]).cuda()
         for t in range(28):
-            temp = y[:, :, :, 0 + 2 * t : sz[2] + 2 * t]
+            temp = y[:, :, :, 0 + 2 * t: sz[2] + 2 * t]
             x[:, t, :, :] = temp.squeeze(1)
         return x
 
@@ -263,20 +264,20 @@ class HSI_CS(nn.Module):
         else:
             bs = sz[0]
         sz = x.size()
-        y = torch.zeros([bs, 1, sz[2], sz[2]+2*27]).cuda()
+        y = torch.zeros([bs, 1, sz[2], sz[2] + 2 * 27]).cuda()
         for t in range(28):
-            y[:, :, :, 0 + 2 * t : sz[2] + 2 * t] = x[:, t, :, :].unsqueeze(1) + y[:, :, :, 0 + 2 * t : sz[2] + 2 * t]
+            y[:, :, :, 0 + 2 * t: sz[2] + 2 * t] = x[:, t, :, :].unsqueeze(1) + y[:, :, :, 0 + 2 * t: sz[2] + 2 * t]
         return y
 
     def forward(self, y):
-        ## The measurements y is split into a 3D data cube of size H × W × L to initialize x.
+        ## The measurements y is split into a 3D data cube of size H * W * L to initialize x.
         Xt = self.y2x(y)
 
         feature_list = []
 
         for i in range(0, self.s):
             AXt = self.x2y(self.A(Xt))  # y = Ax
-            Res1 = self.AT(self.y2x(AXt - y))   # A^T * (Ax − y)
+            Res1 = self.AT(self.y2x(AXt - y))  # A^T * (Ax - y)
 
             fea = self.conv(Xt)
 
@@ -303,18 +304,18 @@ class HSI_CS(nn.Module):
             W, f1, f2, f3 = self.Decoding(E1, E2, E3, E4, E5)
 
             batch_size, p, height, width = f1.size()
-            f1                           = F.normalize(f1.view(batch_size, self.filter_size[0], self.Ch, height, width),dim=1)
+            f1 = F.normalize(f1.view(batch_size, self.filter_size[0], self.Ch, height, width), dim=1)
             batch_size, p, height, width = f2.size()
-            f2                           = F.normalize(f2.view(batch_size, self.filter_size[1], self.Ch, height, width),dim=1)
+            f2 = F.normalize(f2.view(batch_size, self.filter_size[1], self.Ch, height, width), dim=1)
             batch_size, p, height, width = f3.size()
-            f3                           = F.normalize(f3.view(batch_size, self.filter_size[2], self.Ch, height, width),dim=1)
+            f3 = F.normalize(f3.view(batch_size, self.filter_size[2], self.Ch, height, width), dim=1)
 
             ## Estimating the local means U
             u1 = self.Filtering_1(Xt, f1)
             u2 = self.Filtering_2(u1, f2)
             U = self.Filtering_3(u2, f3)
 
-            ## w * (x − u)
+            ## w*(x-u)
             Res2 = (Xt - U).mul(W)
 
             ## Reconstructing HSIs

@@ -11,11 +11,13 @@ import argparse
 from torch.autograd import Variable
 from Utils import *
 
-print('===> Importing Libraries')
-print(torch.__version__)
+print(torch.cuda.device_count())
 print(torch.cuda.is_available())
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+print(torch.backends.cudnn.is_available())
+print(torch.cuda_version)
+print(torch.backends.cudnn.version())
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 if __name__ == "__main__":
 
@@ -36,8 +38,8 @@ if __name__ == "__main__":
 
     ## Model Config
     parser = argparse.ArgumentParser(description="PyTorch Spectral Compressive Imaging")
-    parser.add_argument('--data_path', default='./Data/Training_data/', type=str, help='Path of data')
-    parser.add_argument('--mask_path', default='./Data/mask.mat', type=str, help='Path of mask')
+    parser.add_argument('--data_path', default='Simulation/Data/Training_data/', type=str, help='Path of data')
+    parser.add_argument('--mask_path', default='Simulation/Data/mask.mat', type=str, help='Path of mask')
     parser.add_argument("--size", default=96, type=int, help='The training image size')
     parser.add_argument("--trainset_num", default=20000, type=int, help='The number of training samples of each epoch')
     parser.add_argument("--testset_num", default=10, type=int, help='Total number of testset')
@@ -52,6 +54,8 @@ if __name__ == "__main__":
     torch.manual_seed(opt.seed)
     torch.cuda.manual_seed(opt.seed)
     print(opt)
+    opt.mask_path = 'E:/python_project/DGSMP-main/Simulation/Data/mask.mat'
+    opt.data_path = 'E:/python_project/DGSMP-main/Simulation/Data/Training_data/'
 
     ## Load training data
     extension = 'mat'
@@ -62,17 +66,15 @@ if __name__ == "__main__":
     # file_path = opt.data_path + key
     # file_list = loadpath(file_path)
 
-    opt.mask_path = 'E:/python_project/DGSMP-main/Simulation/Data/mask.mat'
-    opt.data_path = 'E:/python_project/DGSMP-main/Simulation/Data/Training_data/'
     HR_HSI = prepare_data(opt.data_path, file_list, len(file_list))
 
     ## Load trained model
     # wt zhushi
-    initial_epoch = 0
-    # initial_epoch = findLastCheckpoint(save_dir="./Checkpoint")
-    # if initial_epoch > 0:
-    #     print('Load model: resuming by loading epoch %03d' % initial_epoch)
-    #     model = torch.load(os.path.join("./Checkpoint", 'model_%03d.pth' % initial_epoch))
+    initial_epoch = 18
+    initial_epoch = findLastCheckpoint(save_dir="./Checkpoint")
+    if initial_epoch > 0:
+        print('Load model: resuming by loading epoch %03d' % initial_epoch)
+        model = torch.load(os.path.join("./Checkpoint", 'model_%03d.pth' % initial_epoch))
 
     ## Loss function
     criterion = nn.L1Loss()
@@ -112,4 +114,5 @@ if __name__ == "__main__":
         elapsed_time = time.time() - start_time
         print('epoch = %4d , loss = %.10f , time = %4.2f s' % (epoch + 1, epoch_loss / len(Dataset), elapsed_time))
         np.savetxt('train_result.txt', np.hstack((epoch + 1, epoch_loss / i, elapsed_time)), fmt='%2.4f')
-        torch.save(model, os.path.join("./Checkpoint", 'model_%03d.pth' % (epoch + 1)))
+        torch.save(model, os.path.join('model_%03d.pth' % (epoch + 1)))
+        # torch.save(model, os.path.join("./Checkpoint", 'model_%03d.pth' % (epoch + 1)))
